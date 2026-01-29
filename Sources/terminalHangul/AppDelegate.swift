@@ -7,6 +7,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var menu: NSMenu?
     private var isEnabled: Bool = false
+    private var launchAtLoginItem: NSMenuItem?
+    private let launchAgentIdentifier = "com.devautofarm.terminalhangul"
 
     private var eventInterceptor: EventInterceptor?
     private var compositionTracker: CompositionTracker?
@@ -50,6 +52,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: ""
         )
         menu?.addItem(toggleItem)
+
+        // Launch at Login menu item
+        launchAtLoginItem = NSMenuItem(
+            title: "🔄 로그인 시 열기",
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        launchAtLoginItem?.state = isLaunchAtLoginEnabled() ? .on : .off
+        menu?.addItem(launchAtLoginItem!)
 
         menu?.addItem(NSMenuItem.separator())
 
@@ -129,7 +140,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = "About terminalHangul"
         alert.informativeText = """
         terminalHangul
-        Version 1.0.0
+        Version 1.1.0
 
         A macOS menu bar app that enables proper Korean input composition in terminal applications.
 
@@ -147,6 +158,52 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func stopInterception() {
         // TODO: Stop event tap
         eventInterceptor?.stop()
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        if isLaunchAtLoginEnabled() {
+            disableLaunchAtLogin()
+            launchAtLoginItem?.state = .off
+        } else {
+            enableLaunchAtLogin()
+            launchAtLoginItem?.state = .on
+        }
+    }
+
+    private func isLaunchAtLoginEnabled() -> Bool {
+        let launchAgentPath = getLaunchAgentPath()
+        return FileManager.default.fileExists(atPath: launchAgentPath)
+    }
+
+    private func enableLaunchAtLogin() {
+        let launchAgentPath = getLaunchAgentPath()
+        let launchAgentsDir = (launchAgentPath as NSString).deletingLastPathComponent
+
+        // Create LaunchAgents directory if needed
+        try? FileManager.default.createDirectory(atPath: launchAgentsDir, withIntermediateDirectories: true)
+
+        // Get app path
+        guard let appPath = Bundle.main.bundlePath as String? else { return }
+
+        let plistContent: [String: Any] = [
+            "Label": launchAgentIdentifier,
+            "ProgramArguments": ["\(appPath)/Contents/MacOS/TerminalHangul"],
+            "RunAtLoad": true,
+            "KeepAlive": false
+        ]
+
+        let plistData = try? PropertyListSerialization.data(fromPropertyList: plistContent, format: .xml, options: 0)
+        try? plistData?.write(to: URL(fileURLWithPath: launchAgentPath))
+    }
+
+    private func disableLaunchAtLogin() {
+        let launchAgentPath = getLaunchAgentPath()
+        try? FileManager.default.removeItem(atPath: launchAgentPath)
+    }
+
+    private func getLaunchAgentPath() -> String {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Library/LaunchAgents/\(launchAgentIdentifier).plist"
     }
 
     // MARK: - UI Updates

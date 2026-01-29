@@ -15,7 +15,7 @@
     <string>icon</string>
 
     <key>CFBundleIdentifier</key>
-    <string>com.terminalhangul.inputmethod</string>
+    <string>com.devautofarm.terminalhangul</string>
 
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
@@ -26,19 +26,11 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
 
-    <key>CFBundleSignature</key>
-    <string>thgl</string>
-
-    <key>CFBundleSupportedPlatforms</key>
-    <array>
-        <string>MacOSX</string>
-    </array>
-
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.1.0</string>
 
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>2</string>
 
     <key>LSUIElement</key>
     <true/>
@@ -51,72 +43,5 @@
 
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
-
-    <key>InputMethodConnectionName</key>
-    <string>com.terminalhangul.inputmethod_Connection</string>
-
-    <key>InputMethodServerControllerClass</key>
-    <string>InputController</string>
-
-    <key>InputMethodServerDelegateClass</key>
-    <string>InputController</string>
-
-    <key>TISInputSourceID</key>
-    <string>com.terminalhangul.inputmethod</string>
-
-    <key>TISIntendedLanguage</key>
-    <string>ko</string>
-
-    <key>tsInputMethodCharacterRepertoireKey</key>
-    <array>
-        <string>Kore</string>
-        <string>Hang</string>
-    </array>
-
-    <key>tsInputMethodIconFileKey</key>
-    <string>icon.png</string>
-
-    <key>tsInputModePrimaryInScriptKey</key>
-    <true/>
-
-    <key>ComponentInputModeDict</key>
-    <dict>
-        <key>tsInputModeListKey</key>
-        <dict>
-            <key>com.terminalhangul.inputmethod.korean</key>
-            <dict>
-                <key>KeyboardLayout</key>
-                <string>com.apple.keylayout.2SetHangul</string>
-                <key>TISInputSourceID</key>
-                <string>com.terminalhangul.inputmethod.korean</string>
-                <key>TISIntendedLanguage</key>
-                <string>ko</string>
-                <key>tsInputModeAlternateMenuIconFileKey</key>
-                <string>han.png</string>
-                <key>tsInputModeCharacterRepertoireKey</key>
-                <array>
-                    <string>Hang</string>
-                </array>
-                <key>tsInputModeDefaultStateKey</key>
-                <true/>
-                <key>tsInputModeIsVisibleKey</key>
-                <true/>
-                <key>tsInputModeMenuIconFileKey</key>
-                <string>han.png</string>
-                <key>tsInputModePaletteIconFileKey</key>
-                <string>han.png</string>
-                <key>tsInputModePrimaryInScriptKey</key>
-                <true/>
-                <key>tsInputModeScriptKey</key>
-                <string>smKorean</string>
-                <key>tsInputModeTitleKey</key>
-                <string>TerminalHangul</string>
-            </dict>
-        </dict>
-        <key>tsVisibleInputModeOrderedArrayKey</key>
-        <array>
-            <string>com.terminalhangul.inputmethod.korean</string>
-        </array>
-    </dict>
 </dict>
 </plist>

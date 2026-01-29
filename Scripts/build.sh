@@ -22,7 +22,7 @@ echo -e "${BLUE}=== TerminalHangul 빌드 시작 ===${NC}"
 BUILD_DIR="$SCRIPT_DIR/.build"
 APP_NAME="TerminalHangul"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
-INSTALL_DIR="$HOME/Library/Input Methods"
+INSTALL_DIR="/Applications"
 
 # 기존 빌드 정리
 echo -e "${YELLOW}기존 빌드 정리 중...${NC}"
@@ -31,10 +31,15 @@ mkdir -p "$BUILD_DIR"
 
 # 소스 파일 수집
 SOURCES=(
-    "Sources/TerminalHangul/main.swift"
-    "Sources/TerminalHangul/InputController.swift"
-    "Sources/TerminalHangul/HangulEngine/JamoTable.swift"
-    "Sources/TerminalHangul/HangulEngine/HangulComposer.swift"
+    "Sources/terminalHangul/main.swift"
+    "Sources/terminalHangul/AppDelegate.swift"
+    "Sources/terminalHangul/Core/AppContextDetector.swift"
+    "Sources/terminalHangul/Core/CompositionTracker.swift"
+    "Sources/terminalHangul/Core/DecisionEngine.swift"
+    "Sources/terminalHangul/Core/EventInterceptor.swift"
+    "Sources/terminalHangul/Core/KeyEventSynthesizer.swift"
+    "Sources/terminalHangul/Utils/KeyCodes.swift"
+    "Sources/terminalHangul/Utils/Permissions.swift"
 )
 
 # 모든 소스 파일 존재 확인
@@ -103,11 +108,11 @@ echo -e "앱 번들 위치: $APP_BUNDLE"
 
 # 설치 여부 확인
 echo ""
-read -p "입력기를 설치하시겠습니까? (y/n): " -n 1 -r
+read -p "애플리케이션을 설치하시겠습니까? (y/n): " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}기존 입력기 제거 중...${NC}"
+    echo -e "${YELLOW}기존 앱 제거 중...${NC}"
 
     # 기존 프로세스 종료
     pkill -f "$APP_NAME.app" 2>/dev/null || true
@@ -119,29 +124,26 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     fi
 
     # 새 앱 복사
-    echo -e "${YELLOW}새 입력기 설치 중...${NC}"
+    echo -e "${YELLOW}애플리케이션 설치 중...${NC}"
     mkdir -p "$INSTALL_DIR"
     cp -R "$APP_BUNDLE" "$INSTALL_DIR/"
     echo -e "  ${GREEN}[OK]${NC} 설치 완료: $INSTALL_DIR/$APP_NAME.app"
 
-    # 입력 소스 등록
-    echo -e "${YELLOW}입력 소스 등록 중...${NC}"
-
-    # TIS 등록 시도 (시스템이 자동으로 감지할 때까지 대기)
+    # 대기
     sleep 1
 
     echo -e "${GREEN}=== 설치 완료 ===${NC}"
     echo ""
     echo -e "${BLUE}다음 단계:${NC}"
-    echo "1. 시스템 환경설정 > 키보드 > 입력 소스로 이동"
-    echo "2. '+' 버튼 클릭"
-    echo "3. 'TerminalHangul' 검색 및 추가"
-    echo "4. 입력기 전환하여 사용"
+    echo "1. Finder에서 /Applications 폴더로 이동"
+    echo "2. TerminalHangul.app을 실행"
+    echo "3. 접근성 권한 허용 (시스템 환경설정 > 보안 및 개인 정보 보호 > 개인 정보 보호 > 접근성)"
+    echo "4. 애플리케이션이 백그라운드에서 실행됩니다"
     echo ""
     echo -e "${YELLOW}참고:${NC}"
-    echo "- 처음 설치 시 로그아웃/로그인이 필요할 수 있습니다."
+    echo "- 처음 설치 시 접근성 권한 설정이 필요합니다."
     echo "- 문제가 있으면 다음 명령으로 로그 확인: log stream --predicate 'process == \"TerminalHangul\"'"
 else
     echo -e "${YELLOW}설치가 취소되었습니다.${NC}"
-    echo "수동 설치: cp -R $APP_BUNDLE ~/Library/Input\\ Methods/"
+    echo "수동 설치: cp -R $APP_BUNDLE /Applications/"
 fi
