@@ -32,8 +32,18 @@ macOS 터미널에서 한글 입력 후 **Shift+Enter를 두 번** 눌러야 하
 3. **TerminalHangul.app**을 **Applications** 폴더로 드래그
 4. Applications에서 앱 실행
 
-> ⚠️ 처음 실행 시 "확인되지 않은 개발자" 경고가 뜰 수 있습니다.
-> **우클릭 → 열기**를 선택하세요.
+> ⚠️ **"악성 코드가 없는지 확인할 수 없습니다" 경고가 뜨나요?**
+>
+> 이 앱은 Apple 개발자 인증서 없이 배포되어 macOS Gatekeeper가 차단합니다.
+> 다음 방법 중 하나로 실행하세요:
+>
+> **방법 1: 우클릭으로 열기**
+> - Finder에서 앱 **우클릭** → **열기** → 팝업에서 **열기** 클릭
+>
+> **방법 2: 터미널 명령어** (방법 1이 안 될 때)
+> ```bash
+> xattr -d com.apple.quarantine /Applications/TerminalHangul.app
+> ```
 
 ### 권한 설정
 
@@ -51,11 +61,24 @@ macOS 터미널에서 한글 입력 후 **Shift+Enter를 두 번** 눌러야 하
 <details>
 <summary><b>개발자용: 소스에서 빌드</b></summary>
 
+### 요구사항
+- macOS 12.0 이상
+- Xcode Command Line Tools (`xcode-select --install`)
+
+### 빌드 및 설치
 ```bash
 git clone https://github.com/DevAutoFarm/terminal-hangul.git
 cd terminal-hangul
-swift build -c release
-swift run
+./Scripts/build.sh
+```
+
+빌드 스크립트가 컴파일, 코드 서명, 설치를 자동으로 처리합니다.
+
+### 빌드만 (설치 없이)
+```bash
+./Scripts/build.sh
+# 설치 여부 묻는 프롬프트에서 'n' 선택
+# 빌드된 앱: Scripts/.build/TerminalHangul.app
 ```
 
 </details>
