@@ -43,5 +43,8 @@
 
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+
+    <key>NSInputMonitoringUsageDescription</key>
+    <string>terminalHangul needs to monitor keyboard input to enable proper Korean character composition in terminal applications.</string>
 </dict>
 </plist>

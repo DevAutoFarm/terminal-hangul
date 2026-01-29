@@ -18,7 +18,7 @@ struct Permissions {
             options: .defaultTap,
             eventsOfInterest: eventMask,
             callback: { _, _, event, _ in
-                return Unmanaged.passRetained(event)
+                return Unmanaged.passUnretained(event)
             },
             userInfo: nil
         ) else {
@@ -46,7 +46,7 @@ struct Permissions {
             options: .defaultTap,
             eventsOfInterest: eventMask,
             callback: { _, _, event, _ in
-                return Unmanaged.passRetained(event)
+                return Unmanaged.passUnretained(event)
             },
             userInfo: nil
         ) {
@@ -58,8 +58,10 @@ struct Permissions {
     }
 
     static func openInputMonitoringPreferences() {
-        // TODO: Open System Preferences to Input Monitoring page
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent") else {
+            print("[Permissions] Failed to create Input Monitoring preferences URL")
+            return
+        }
         NSWorkspace.shared.open(url)
     }
 
@@ -80,7 +82,10 @@ struct Permissions {
     }
 
     static func openAccessibilityPreferences() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else {
+            print("[Permissions] Failed to create Accessibility preferences URL")
+            return
+        }
         NSWorkspace.shared.open(url)
     }
 

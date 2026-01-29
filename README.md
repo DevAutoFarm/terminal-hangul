@@ -28,6 +28,22 @@ swift run
 
 ---
 
+## 빌드
+
+### Development
+```bash
+swift build
+```
+
+### Release (Signed)
+```bash
+swift build -c release
+# For distribution, sign with release entitlements:
+# codesign --entitlements Sources/terminalHangul/Resources/terminalHangul.release.entitlements ...
+```
+
+---
+
 ## 사용법
 
 1. 앱 실행 후 메뉴바에 **"한"** 아이콘 확인

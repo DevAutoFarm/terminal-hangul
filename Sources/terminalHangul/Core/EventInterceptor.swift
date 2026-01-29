@@ -18,6 +18,12 @@ class EventInterceptor {
     /// Whether the interceptor is currently running
     private(set) var isRunning: Bool = false
 
+    /// Last time the event tap was re-enabled (for rate limiting)
+    fileprivate var lastReenableTime: Date = .distantPast
+
+    /// Minimum interval between re-enables (seconds)
+    fileprivate let reenableMinInterval: TimeInterval = 1.0
+
     // MARK: - Initialization
 
     init(decisionEngine: DecisionEngine) {
@@ -126,12 +132,17 @@ private func eventTapCallback(
 
     // Handle tap disabled event (system may disable tap if it's too slow)
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-        print("[EventInterceptor] Event tap was disabled, re-enabling...")
-
         if let userInfo = userInfo {
             let interceptor = Unmanaged<EventInterceptor>.fromOpaque(userInfo).takeUnretainedValue()
-            if let tap = interceptor.eventTap {
-                CGEvent.tapEnable(tap: tap, enable: true)
+            let now = Date()
+
+            // Rate limit: only re-enable if enough time has passed
+            if now.timeIntervalSince(interceptor.lastReenableTime) >= interceptor.reenableMinInterval {
+                print("[EventInterceptor] Event tap was disabled, re-enabling...")
+                interceptor.lastReenableTime = now
+                if let tap = interceptor.eventTap {
+                    CGEvent.tapEnable(tap: tap, enable: true)
+                }
             }
         }
 

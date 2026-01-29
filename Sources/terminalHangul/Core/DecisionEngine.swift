@@ -20,7 +20,9 @@ class DecisionEngine {
     private var isForceCommitting: Bool = false
 
     /// Debug mode
+    #if DEBUG
     var debugEnabled: Bool = false
+    #endif
 
     // MARK: - Initialization
 
@@ -228,9 +230,15 @@ class DecisionEngine {
         }
     }
 
+    #if DEBUG
     private func debugLog(_ message: String) {
         if debugEnabled {
             print("[DecisionEngine] \(message)")
         }
     }
+    #else
+    private func debugLog(_ message: String) {
+        // No-op in release builds
+    }
+    #endif
 }

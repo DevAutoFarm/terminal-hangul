@@ -60,7 +60,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: ""
         )
         launchAtLoginItem?.state = isLaunchAtLoginEnabled() ? .on : .off
-        menu?.addItem(launchAtLoginItem!)
+        if let loginItem = launchAtLoginItem {
+            menu?.addItem(loginItem)
+        }
 
         menu?.addItem(NSMenuItem.separator())
 
@@ -98,12 +100,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         compositionTracker = CompositionTracker()
         appContextDetector = AppContextDetector()
         keyEventSynthesizer = KeyEventSynthesizer()
+
+        guard let tracker = compositionTracker,
+              let detector = appContextDetector,
+              let synthesizer = keyEventSynthesizer else {
+            print("[AppDelegate] Failed to initialize core components")
+            return
+        }
+
         decisionEngine = DecisionEngine(
-            compositionTracker: compositionTracker!,
-            appContextDetector: appContextDetector!,
-            keyEventSynthesizer: keyEventSynthesizer!
+            compositionTracker: tracker,
+            appContextDetector: detector,
+            keyEventSynthesizer: synthesizer
         )
-        eventInterceptor = EventInterceptor(decisionEngine: decisionEngine!)
+
+        guard let engine = decisionEngine else {
+            print("[AppDelegate] Failed to initialize DecisionEngine")
+            return
+        }
+
+        eventInterceptor = EventInterceptor(decisionEngine: engine)
     }
 
     private func checkPermissions() {
@@ -180,10 +196,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let launchAgentsDir = (launchAgentPath as NSString).deletingLastPathComponent
 
         // Create LaunchAgents directory if needed
-        try? FileManager.default.createDirectory(atPath: launchAgentsDir, withIntermediateDirectories: true)
+        do {
+            try FileManager.default.createDirectory(atPath: launchAgentsDir, withIntermediateDirectories: true)
+        } catch {
+            print("[AppDelegate] Failed to create LaunchAgents directory: \(error.localizedDescription)")
+            showLaunchAgentError("Failed to create LaunchAgents directory")
+            return
+        }
 
         // Get app path
-        guard let appPath = Bundle.main.bundlePath as String? else { return }
+        let appPath = Bundle.main.bundlePath
 
         let plistContent: [String: Any] = [
             "Label": launchAgentIdentifier,
@@ -192,8 +214,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             "KeepAlive": false
         ]
 
-        let plistData = try? PropertyListSerialization.data(fromPropertyList: plistContent, format: .xml, options: 0)
-        try? plistData?.write(to: URL(fileURLWithPath: launchAgentPath))
+        do {
+            let plistData = try PropertyListSerialization.data(fromPropertyList: plistContent, format: .xml, options: 0)
+            try plistData.write(to: URL(fileURLWithPath: launchAgentPath))
+            print("[AppDelegate] LaunchAgent created successfully at \(launchAgentPath)")
+        } catch {
+            print("[AppDelegate] Failed to create LaunchAgent: \(error.localizedDescription)")
+            showLaunchAgentError("Failed to enable launch at login")
+        }
+    }
+
+    private func showLaunchAgentError(_ message: String) {
+        let alert = NSAlert()
+        alert.messageText = "Launch at Login Error"
+        alert.informativeText = message
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     private func disableLaunchAtLogin() {
