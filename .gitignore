@@ -41,3 +41,12 @@ xcuserdata/
 *.swp
 *.swo
 *~
+
+# OMC state files
+.omc/
+CHECKPOINT.md
+
+# Local development files
+agents/
+homebrew/
+TerminalHangul/
