@@ -1,14 +1,3 @@
-#!/bin/bash
-# Modern terminal-themed icon generator for terminalHangul
-# Creates SVG and converts to PNG using macOS native tools
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
-
-echo "Creating modern terminal-themed app icon..."
-
-# Create SVG icon with terminal aesthetic
-cat > icon.svg << 'SVGEOF'
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <!-- Outer shadow/glow effect -->
   <defs>
@@ -62,36 +51,3 @@ cat > icon.svg << 'SVGEOF'
         font-size="220" font-weight="700" fill="#FFFFFF" text-anchor="middle"
         dominant-baseline="middle" opacity="0.15">한</text>
 </svg>
-SVGEOF
-
-echo "✓ SVG created"
-
-# Convert SVG to PNG using macOS native tools
-if command -v qlmanage &> /dev/null && command -v sips &> /dev/null; then
-    echo "Converting SVG to PNG using qlmanage and sips..."
-
-    # Generate thumbnail with qlmanage
-    qlmanage -t -s 1024 -o . icon.svg > /dev/null 2>&1
-
-    if [ -f "icon.svg.png" ]; then
-        # Resize to 512x512 using sips
-        sips -z 512 512 icon.svg.png --out icon.png > /dev/null 2>&1
-        cp icon.png han.png
-        rm icon.svg.png
-
-        echo "✓ PNG icons created successfully"
-        echo ""
-        echo "Files created:"
-        ls -lh icon.svg icon.png han.png
-        exit 0
-    fi
-fi
-
-# Fallback: just keep SVG
-echo "⚠ PNG conversion tools not available"
-echo "✓ SVG created at icon.svg"
-echo ""
-echo "To convert manually:"
-echo "1. Open icon.svg in Preview"
-echo "2. Export as PNG at 512x512 resolution"
-echo "3. Save as icon.png and han.png"

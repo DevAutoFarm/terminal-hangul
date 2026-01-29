@@ -140,7 +140,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = "About terminalHangul"
         alert.informativeText = """
         terminalHangul
-        Version 1.1.0
+        Version 1.2.0
 
         A macOS menu bar app that enables proper Korean input composition in terminal applications.
 
@@ -216,7 +216,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateStatusIcon(enabled: Bool) {
         // TODO: Update status bar icon to reflect enabled state
-        statusItem?.button?.title = enabled ? "한✓" : "한"
+        statusItem?.button?.title = enabled ? "✔" : "한"
     }
 
     private func showPermissionAlert() {
