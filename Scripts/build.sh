@@ -19,7 +19,8 @@ cd "$SCRIPT_DIR/.."
 echo -e "${BLUE}=== TerminalHangul 빌드 시작 ===${NC}"
 
 # 빌드 디렉토리 설정
-BUILD_DIR="$SCRIPT_DIR/.build"
+BUILD_DIR="/tmp/TerminalHangul-build"
+FINAL_OUTPUT_DIR="$SCRIPT_DIR/.build"
 APP_NAME="TerminalHangul"
 APP_BUNDLE="$BUILD_DIR/$APP_NAME.app"
 INSTALL_DIR="/Applications"
@@ -93,18 +94,34 @@ echo -e "  ${GREEN}[OK]${NC} 컴파일 완료"
 # Info.plist 복사
 echo -e "${YELLOW}Info.plist 복사 중...${NC}"
 cp "Sources/terminalHangul/Resources/Info.plist" "$APP_BUNDLE/Contents/"
+xattr -cr "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
 echo -e "  ${GREEN}[OK]${NC} Info.plist 복사 완료"
 
 # 아이콘 파일 복사
 echo -e "${YELLOW}아이콘 파일 복사 중...${NC}"
 cp Sources/terminalHangul/Resources/*.png "$APP_BUNDLE/Contents/Resources/" 2>/dev/null || true
+xattr -cr "$APP_BUNDLE/Contents/Resources/" 2>/dev/null || true
 echo -e "  ${GREEN}[OK]${NC} 아이콘 파일 복사 완료"
 
 # 실행 권한 설정
 chmod +x "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
+# 확장 속성 제거 (iCloud Drive 호환성)
+xattr -cr "$APP_BUNDLE"
+
+# 코드 서명 (ad-hoc)
+echo -e "${YELLOW}앱 번들 서명 중...${NC}"
+codesign --force --deep --sign - "$APP_BUNDLE"
+echo -e "  ${GREEN}[OK]${NC} 코드 서명 완료"
+
+# 최종 출력 디렉토리에 복사
+echo -e "${YELLOW}최종 출력 디렉토리에 복사 중...${NC}"
+mkdir -p "$FINAL_OUTPUT_DIR"
+cp -R "$APP_BUNDLE" "$FINAL_OUTPUT_DIR/" 2>/dev/null || true
+echo -e "  ${GREEN}[OK]${NC} 앱 번들 복사 완료: $FINAL_OUTPUT_DIR/$APP_NAME.app"
+
 echo -e "${GREEN}=== 빌드 완료 ===${NC}"
-echo -e "앱 번들 위치: $APP_BUNDLE"
+echo -e "앱 번들 위치: $FINAL_OUTPUT_DIR/$APP_NAME.app"
 
 # 설치 여부 확인
 echo ""
@@ -126,7 +143,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     # 새 앱 복사
     echo -e "${YELLOW}애플리케이션 설치 중...${NC}"
     mkdir -p "$INSTALL_DIR"
-    cp -R "$APP_BUNDLE" "$INSTALL_DIR/"
+    cp -R "$FINAL_OUTPUT_DIR/$APP_NAME.app" "$INSTALL_DIR/"
     echo -e "  ${GREEN}[OK]${NC} 설치 완료: $INSTALL_DIR/$APP_NAME.app"
 
     # 대기
@@ -145,5 +162,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "- 문제가 있으면 다음 명령으로 로그 확인: log stream --predicate 'process == \"TerminalHangul\"'"
 else
     echo -e "${YELLOW}설치가 취소되었습니다.${NC}"
-    echo "수동 설치: cp -R $APP_BUNDLE /Applications/"
+    echo "수동 설치: cp -R $FINAL_OUTPUT_DIR/$APP_NAME.app /Applications/"
 fi
