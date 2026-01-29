@@ -42,11 +42,11 @@ xcuserdata/
 *.swo
 *~
 
-# OMC state files
+# Development tools
 .omc/
+.claude/
 CHECKPOINT.md
 
-# Local development files
-agents/
-homebrew/
-TerminalHangul/
+# Development and distribution folders (local only)
+.dev/
+.dist/

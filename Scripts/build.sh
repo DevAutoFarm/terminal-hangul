@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # 스크립트 디렉토리
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR/.."
 
 echo -e "${BLUE}=== TerminalHangul 빌드 시작 ===${NC}"
 
@@ -87,12 +87,12 @@ echo -e "  ${GREEN}[OK]${NC} 컴파일 완료"
 
 # Info.plist 복사
 echo -e "${YELLOW}Info.plist 복사 중...${NC}"
-cp "Resources/Info.plist" "$APP_BUNDLE/Contents/"
+cp "Sources/terminalHangul/Resources/Info.plist" "$APP_BUNDLE/Contents/"
 echo -e "  ${GREEN}[OK]${NC} Info.plist 복사 완료"
 
 # 아이콘 파일 복사
 echo -e "${YELLOW}아이콘 파일 복사 중...${NC}"
-cp Resources/*.png "$APP_BUNDLE/Contents/Resources/" 2>/dev/null || true
+cp Sources/terminalHangul/Resources/*.png "$APP_BUNDLE/Contents/Resources/" 2>/dev/null || true
 echo -e "  ${GREEN}[OK]${NC} 아이콘 파일 복사 완료"
 
 # 실행 권한 설정
