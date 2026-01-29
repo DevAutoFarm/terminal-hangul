@@ -140,7 +140,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = "About terminalHangul"
         alert.informativeText = """
         terminalHangul
-        Version 1.2.1
+        Version 1.2.2
 
         A macOS menu bar app that enables proper Korean input composition in terminal applications.
 
