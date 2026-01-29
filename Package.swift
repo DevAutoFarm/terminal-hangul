@@ -1,6 +1,4 @@
-// swift-tools-version: 5.7
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
@@ -9,17 +7,16 @@ let package = Package(
         .macOS(.v12)
     ],
     products: [
-        .executable(
-            name: "terminalHangul",
-            targets: ["terminalHangul"]
-        )
+        .executable(name: "terminalHangul", targets: ["terminalHangul"])
     ],
-    dependencies: [],
     targets: [
         .executableTarget(
             name: "terminalHangul",
-            dependencies: [],
-            path: "Sources/terminalHangul"
+            path: "Sources/terminalHangul",
+            linkerSettings: [
+                .linkedFramework("Cocoa"),
+                .linkedFramework("InputMethodKit")
+            ]
         )
     ]
 )
