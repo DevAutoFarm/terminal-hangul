@@ -39,7 +39,6 @@ class EventInterceptor {
     /// Start intercepting keyboard events
     func start() -> Bool {
         guard !isRunning else {
-            print("[EventInterceptor] Already running")
             return true
         }
 
@@ -60,17 +59,21 @@ class EventInterceptor {
             callback: eventTapCallback,
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
-            print("[EventInterceptor] Failed to create event tap - check Input Monitoring permission")
+            print("[EventInterceptor] Failed to create event tap - check Accessibility permission")
             return false
         }
 
         eventTap = tap
 
+        // Warn if Input Monitoring permission is not granted
+        if !Permissions.hasInputMonitoringPermission() {
+            print("[EventInterceptor] WARNING: Input Monitoring permission not granted - events will not be received")
+        }
+
         // Create a run loop source and add it to the current run loop
         runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
 
         guard let source = runLoopSource else {
-            print("[EventInterceptor] Failed to create run loop source")
             cleanup()
             return false
         }
@@ -129,7 +132,6 @@ private func eventTapCallback(
     event: CGEvent,
     userInfo: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
-
     // Handle tap disabled event (system may disable tap if it's too slow)
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
         if let userInfo = userInfo {
@@ -138,7 +140,6 @@ private func eventTapCallback(
 
             // Rate limit: only re-enable if enough time has passed
             if now.timeIntervalSince(interceptor.lastReenableTime) >= interceptor.reenableMinInterval {
-                print("[EventInterceptor] Event tap was disabled, re-enabling...")
                 interceptor.lastReenableTime = now
                 if let tap = interceptor.eventTap {
                     CGEvent.tapEnable(tap: tap, enable: true)

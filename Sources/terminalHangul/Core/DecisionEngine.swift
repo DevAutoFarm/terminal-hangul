@@ -19,10 +19,8 @@ class DecisionEngine {
     /// Whether we're currently in the middle of forcing a commit
     private var isForceCommitting: Bool = false
 
-    /// Debug mode
-    #if DEBUG
-    var debugEnabled: Bool = false
-    #endif
+    /// Debug mode - always enabled for proper event processing
+    var debugEnabled: Bool = true
 
     // MARK: - Initialization
 
@@ -230,15 +228,9 @@ class DecisionEngine {
         }
     }
 
-    #if DEBUG
     private func debugLog(_ message: String) {
         if debugEnabled {
             print("[DecisionEngine] \(message)")
         }
     }
-    #else
-    private func debugLog(_ message: String) {
-        // No-op in release builds
-    }
-    #endif
 }

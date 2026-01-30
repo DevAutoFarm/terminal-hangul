@@ -123,8 +123,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func checkPermissions() {
-        // TODO: Check and request Input Monitoring permission
+        // Input Monitoring is required for CGEvent tap to receive events
         if !Permissions.hasInputMonitoringPermission() {
+            showInputMonitoringAlert()
+            return
+        }
+        // Accessibility is required for CGEvent tap creation
+        if !Permissions.hasAccessibilityPermission() {
             showPermissionAlert()
         }
     }
@@ -132,6 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Actions
 
     @objc private func toggleEnabled() {
+        NSLog("[AppDelegate] toggleEnabled called, current state: %d", isEnabled ? 1 : 0)
         isEnabled.toggle()
 
         if isEnabled {
@@ -168,7 +174,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func startInterception() {
-        _ = eventInterceptor?.start()
+        NSLog("[AppDelegate] startInterception called")
+        let result = eventInterceptor?.start() ?? false
+        NSLog("[AppDelegate] startInterception result: %d", result ? 1 : 0)
     }
 
     private func stopInterception() {
@@ -258,10 +266,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showPermissionAlert() {
         let alert = NSAlert()
-        alert.messageText = "Input Monitoring Permission Required"
-        alert.informativeText = "terminalHangul needs Input Monitoring permission to intercept keyboard events. Please grant permission in System Preferences > Security & Privacy > Privacy > Input Monitoring."
+        alert.messageText = "Accessibility Permission Required"
+        alert.informativeText = "terminalHangul needs Accessibility permission to intercept keyboard events. Please grant permission in System Settings > Privacy & Security > Accessibility."
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Open System Preferences")
+        alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Cancel")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            Permissions.openAccessibilityPreferences()
+        }
+    }
+
+    private func showInputMonitoringAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Input Monitoring Permission Required"
+        alert.informativeText = "terminalHangul needs Input Monitoring permission to intercept keyboard events. Please grant permission in System Settings > Privacy & Security > Input Monitoring."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Open System Settings")
         alert.addButton(withTitle: "Cancel")
 
         if alert.runModal() == .alertFirstButtonReturn {

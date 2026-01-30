@@ -1,34 +1,37 @@
 import Cocoa
 import CoreGraphics
+import IOKit.hid
 
 struct Permissions {
 
     // MARK: - Input Monitoring
 
     static func hasInputMonitoringPermission() -> Bool {
-        // TODO: Check if Input Monitoring permission is granted
-        // This is required for CGEvent.tapCreate to work
-
-        // Try to create a temporary event tap to check permission
-        let eventMask = CGEventMask(1 << CGEventType.keyDown.rawValue)
-
-        guard let eventTap = CGEvent.tapCreate(
-            tap: .cgSessionEventTap,
-            place: .headInsertEventTap,
-            options: .defaultTap,
-            eventsOfInterest: eventMask,
-            callback: { _, _, event, _ in
-                return Unmanaged.passUnretained(event)
-            },
-            userInfo: nil
-        ) else {
-            return false
+        // On macOS 10.15+, use IOHIDCheckAccess to check Input Monitoring permission
+        // kIOHIDRequestTypeListenEvent = 1 (for Input Monitoring)
+        if #available(macOS 10.15, *) {
+            // IOHIDCheckAccess returns true if access is granted
+            // kIOHIDRequestTypeListenEvent checks Input Monitoring specifically
+            let result = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
+            return result == kIOHIDAccessTypeGranted
+        } else {
+            // On older macOS, fall back to trying to create an event tap
+            let eventMask = CGEventMask(1 << CGEventType.keyDown.rawValue)
+            guard let eventTap = CGEvent.tapCreate(
+                tap: .cgSessionEventTap,
+                place: .headInsertEventTap,
+                options: .defaultTap,
+                eventsOfInterest: eventMask,
+                callback: { _, _, event, _ in
+                    return Unmanaged.passUnretained(event)
+                },
+                userInfo: nil
+            ) else {
+                return false
+            }
+            CFMachPortInvalidate(eventTap)
+            return true
         }
-
-        // Clean up
-        CFMachPortInvalidate(eventTap)
-
-        return true
     }
 
     static func requestInputMonitoringPermission() {
